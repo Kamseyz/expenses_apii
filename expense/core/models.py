@@ -10,7 +10,7 @@ class Category(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return f'This {self.name} category belongs to {self.user}'
+        return f'{self.name}'
 
 class Expense(models.Model):
     title = models.CharField(max_length=100,validators=[MinLengthValidator(3, message='Title must be in the range of 3-100 characters'), 

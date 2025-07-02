@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Category, Expense
 
+
+
 # ADD CATEGORY
 class SerializedAddCategory(serializers.ModelSerializer):
     class Meta:
@@ -43,27 +45,35 @@ class SerializedUpdateCategory(serializers.ModelSerializer):
     
 # ADD CATEGORY + EXPENSES (NESTED)
 class SerializedAddExpenses(serializers.ModelSerializer):
+    date = serializers.DateField()
     class Meta:
         model = Expense
         fields = [
+            'id',
             'title',
             'amount',
+            'category',
+            'date',
             'description'
         ]
         
-        read_only_fields = ['category']
         
     def create(self, validated_data):
         user = self.context['request'].user
         return Expense.objects.create(user = user , **validated_data)
     
     def validate_amount(self, value):
-        if not isinstance(value, (int, float)):
-            raise serializers.ValidationError('Amount must be a number')
         if value <= 0:
             raise serializers.ValidationError('Amount must be greater than 0')
         return value
 
+    def validate(self, attrs):
+        description = attrs.get('description')
+        if len(description) < 3:
+            raise serializers.ValidationError("description character can't be less than 3 ")
+        elif len(description) >= 200:
+            raise serializers.ValidationError("description cannot excess 200 lines")
+        return attrs
         
         
 # UPDATE CATEGORY + EXPENSES(NESTED)
@@ -74,10 +84,10 @@ class SerializedUpdateExpenses(serializers.ModelSerializer):
         fields = [
             'title',
             'amount',
+            'category',
             'description'
         ]
         
-        read_only_fields = ['category']
         
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
@@ -87,8 +97,6 @@ class SerializedUpdateExpenses(serializers.ModelSerializer):
         return instance
     
     def validate_amount(self, value):
-        if not isinstance(value, (int, float)):
-            raise serializers.ValidationError('Amount must be a number')
         if value <= 0:
             raise serializers.ValidationError('Amount must be greater than 0')
         return value
