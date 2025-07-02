@@ -1,9 +1,10 @@
-from django.contrib import admin
-from django.urls import path,include
+from django.urls import path
+from .views import CreateCategory,EditCategory
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls')),
-    # path('', include('accounts.urls')),
-    # path('', include('core.urls')),
+    #List and create cateogry
+    path('create_category/', CreateCategory.as_view(), name='create_category'),
+    #update category
+    path('update/<int:pk>/category/', EditCategory.as_view(), name='update_category'),
+    #delete category
 ]

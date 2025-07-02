@@ -5,12 +5,14 @@ from .models import Category, Expense
 class SerializedAddCategory(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name']
-        
+        fields = ['id', 'name']
+    
+    #create category    
     def create(self, validated_data):
         user = self.context['request'].user
         return Category.objects.create(user = user , **validated_data)
     
+    #validate category
     def validate(self, attrs):
         name = attrs.get('name')
         if len(name) < 3:
@@ -19,6 +21,13 @@ class SerializedAddCategory(serializers.ModelSerializer):
             raise serializers.ValidationError("Cateogry can't be greater than 50 character")
         return attrs
     
+    #Check if category already exists
+    
+    def validate_name(self, value):
+        if Category.objects.filter(name = value).exists():
+            raise serializers.ValidationError("Category already exists")
+        else:
+            return value
     
 # UPDATE CATEGORY
 class SerializedUpdateCategory(serializers.ModelSerializer):
